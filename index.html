@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flower Rescue</title>
+  <title>Flower Rescue + Helper Dog</title>
   <style>
     body, html {
       margin: 0;
@@ -45,7 +45,7 @@
     .obstacle {
       width: 60px;
       height: 60px;
-      animation: fall 5s linear infinite;
+      animation: fall 5s linear forwards;
     }
 
     .flower {
@@ -63,6 +63,18 @@
       height: 60px;
     }
 
+    .dog {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 60px;
+      background-image: url('dogs.png');
+      background-size: cover;
+      z-index: 10;
+      transition: left 1.5s linear;
+    }
+
     @keyframes fall {
       0% { top: -60px; }
       100% { top: 100%; }
@@ -72,8 +84,9 @@
 <body>
   <div class="game-container">
     <div class="gardener"></div>
+    <div class="dog"></div>
 
-    <!-- Trash (obstacles) -->
+    <!-- Initial obstacles -->
     <div class="obstacle" style="left: 100px;"></div>
     <div class="obstacle" style="left: 300px;"></div>
     <div class="obstacle" style="left: 500px;"></div>
@@ -82,17 +95,58 @@
 
   <script>
     const gardener = document.querySelector('.gardener');
-    const obstacles = document.querySelectorAll('.obstacle');
     const gameContainer = document.querySelector('.game-container');
+    const dog = document.querySelector('.dog');
 
     const flowerImages = ['red.png', 'tulip.png', 'pastel.png'];
     const trashImages = ['bag.png', 'garb.png', 'rock.png'];
 
-    // Assign random trash images to each obstacle
-    obstacles.forEach(obstacle => {
+    function createObstacle(leftPos) {
+      const obstacle = document.createElement('div');
+      obstacle.classList.add('obstacle');
+      obstacle.style.left = leftPos + 'px';
+
       const randomTrash = trashImages[Math.floor(Math.random() * trashImages.length)];
       obstacle.style.backgroundImage = `url('${randomTrash}')`;
-    });
+      gameContainer.appendChild(obstacle);
+
+      // Trash fall animation completed (not clicked)
+      obstacle.addEventListener('animationend', () => {
+        fetchTrash(obstacle);
+      });
+
+      // Clicked (cleaned by player)
+      obstacle.addEventListener('click', () => {
+        growFlowerAt(obstacle.style.left, obstacle.offsetTop + 'px');
+        obstacle.remove();
+      });
+    }
+
+    function growFlowerAt(left, top) {
+      const flower = document.createElement('div');
+      flower.classList.add('flower');
+      const img = flowerImages[Math.floor(Math.random() * flowerImages.length)];
+      flower.style.backgroundImage = `url('${img}')`;
+      flower.style.left = left;
+      flower.style.top = top;
+      gameContainer.appendChild(flower);
+
+      setTimeout(() => {
+        flower.classList.add('grow');
+      }, 100);
+    }
+
+    function fetchTrash(obstacle) {
+      const obstacleX = obstacle.offsetLeft + 'px';
+      dog.style.backgroundImage = "url('dog.png')";
+      dog.style.left = obstacleX;
+
+      setTimeout(() => {
+        obstacle.remove(); // Remove missed trash
+        dog.style.left = '0px';
+        dog.style.backgroundImage = "url('dogs.png')";
+      }, 1500);
+    }
 
     // Move gardener with mouse
     document.addEventListener('mousemove', (e) => {
@@ -100,29 +154,8 @@
       gardener.style.left = (e.clientX - containerLeft - gardener.offsetWidth / 2) + 'px';
     });
 
-    // Click obstacle -> grow flower
-    obstacles.forEach(obstacle => {
-      obstacle.addEventListener('click', () => {
-        const flower = document.createElement('div');
-        flower.classList.add('flower');
-
-        // Random flower image
-        const randomImage = flowerImages[Math.floor(Math.random() * flowerImages.length)];
-        flower.style.backgroundImage = `url('${randomImage}')`;
-
-        flower.style.left = obstacle.style.left;
-        flower.style.top = obstacle.style.top;
-        gameContainer.appendChild(flower);
-
-        // Grow animation
-        setTimeout(() => {
-          flower.classList.add('grow');
-        }, 100);
-
-        // Remove clicked obstacle
-        obstacle.remove();
-      });
-    });
+    // Spawn initial 4 obstacles
+    [100, 300, 500, 700].forEach(x => createObstacle(x));
   </script>
 </body>
 </html>
