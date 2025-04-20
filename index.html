@@ -35,24 +35,15 @@
     }
 
     .trash {
-      background-image: url('https://i.imgur.com/w0zUfxs.png'); /* Trash icon */
-      animation: fall 5s linear infinite;
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8HNV4AAAAWlBMVEUAAAD///+rqymJfpWRtRk2K2KHN6L8rxAwnN2Rbe9us2bzHBRkwDk5yLoijF1afnNuFONarUKZpyryktjvkaB2jSHtMfbcG5uJhgHrwEzSu+3W4l5HbVw55bUtDdxBGgNjqzkhtMdxoxJ9FqupRaD0y9RyoETiZ7pvWqa40lZIuSh0RNhNhNz0CGGGkplJ1cMwRuJZb3+JwLqYOZs10yRzj29XGBVgqD53y5LD2bDCQk35sEY5HzlY7g8Pxb7PQW+auUqEmcbSgcAN4XsGVqUiw4c71wwzYAjvEbdBrNwsQUP3Jg0CfbxJlY5Af1nxXqDrmX8z6+LzGZYRI03opbb72twj+lJ3K02OnWhsbqOwK0MJKmYxwgM6r04n0mhHFwLwUdoOnkSi1N+qpLgEsvau4rZ0wmPmnMiBq9Ls6JvqgBvgYkyVqbRIb+AHsVZmIryGRsqF+0PDo/hNrWbqdYOk9hgCpoHjyXPy09NzHxaHkQCSyf0MN4VVQIV+dkYOJ4nFSWquzH5yptZyWAzA2bRgsqaBoDlgbNdQIH3k2thjl2FXfg4C2bYKHQpwr8BWyOVy0VZTeZJY6s34rZjKQpmbm6yVsj4Y7VijLGR7dG4tVYm6cREyHqWV4+w2ZRAKnljoEiOtVQsZCZXAt7EADepybpuMteONYYe1ZsUwXsGofuoYNX1JzvStXtnuEu8D6KOdBd20xtqgRAqLsYdCgpeDUGml5YbzG2fwrQfxzEXpS6V18Yh5s5Dl4s6cn2eb2ZJdb2j/mEZosuykZftqHq6/fZa59XwWzYybZr5Xqu98tDzS0s0zYP2kg00ZaDhR7wLgLkCB3SmWRkKK10BGYmjHhfV70cHk+lbm5nbKMiYjfOmAF2fv2R27No1xKlq3U99UiwflUj5A+ckgH5J02dbZspXP7DZ0c/mUHZutkAgw5pmfxc/hwZ28HkFiGGa9uGL+ZlsZ2z5FhQ36YgA6cBo9YrVGbCv8fEps7AKg3i7niJYbm9aMlM4tHreDBVoNcP3Wlm1UOY18ERfwVm+Xzj47mnDh/ywOel4l/WmsP3wfb3w3kETywLx8YZ2VtoSZrxap9OoHkzrj3b1i2F6yNkD8W6OdOXk6z8aj9j1n+2+74e5M4hDmnZy2pu8eAX9/tjkt1McdF7vhxzN4cxTzBGZhz9lwMkV0kF5Nrsw8MI7FzSTTtQGVyphfOmkwouB91kdAPGyH6pRj0A3wO6zdl9A9XKxEp2swF4fVt9gdvgPV4oVb88b+Wpy47kmFtxzNnW+k2cHr1I9dPvFE9lG+OXfbF0Xs2cGcXJjjO5fiuQcbXdn4zgn60hxgqPpWovvvCe+xUqTkDlxdh8zR5d9FNxxhu5FS8rAp0p2wD5jUmWqM60UpD/j3SvAygLMgAiHD1A4PUxoa9OXY2ZZwYtt5w2qJ07Bmvjqmy+8f9lC35+2CKehmfFzg1bb+5yzfjm5+UqXhtGoLhvOgkH2dbslnkLsMbMiOXqk3VtOQmZMQT3Ih+a43n3fi41jjbBZsfzpH4wVrS2A10JzRgEm7W1IcuxbUAAAAJXRFWHRTb2Z0d2FyZQBNYXRwbG90bGlndWUgNi4yLjYxDzvZMzDpa5kWsb/nbA1G1qbNubZlo4YThfGeVpA=='); /* Trash */
     }
 
     .flower {
-      background-image: url('https://i.imgur.com/bz35Mdh.png'); /* Small flower */
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA... aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaAAAA=='); /* Flower */
       opacity: 0;
       transition: opacity 0.3s ease-in-out;
     }
 
-    @keyframes fall {
-      0% {
-        top: -50px;
-      }
-      100% {
-        top: 100%;
-      }
-    }
   </style>
 </head>
 <body>
@@ -77,7 +68,6 @@
 
         setTimeout(() => {
           flower.style.opacity = 1;
-          flower.style.backgroundImage = 'url("https://i.imgur.com/pDrA8yr.png")'; // Bloomed flower
         }, 100);
       });
     });
