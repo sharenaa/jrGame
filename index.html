@@ -33,8 +33,8 @@
     }
 
     .gardener {
-      width: 120px;
-      height: 120px;
+      width: 110px;
+      height: 110px;
       background-image: url('gardener.png');
       bottom: 0;
       left: 50%;
@@ -86,7 +86,7 @@
     <div class="gardener"></div>
     <div class="dog"></div>
 
-    <!-- Initial obstacles -->
+    <!-- Initial trash -->
     <div class="obstacle" style="left: 100px;"></div>
     <div class="obstacle" style="left: 300px;"></div>
     <div class="obstacle" style="left: 500px;"></div>
@@ -137,12 +137,16 @@
     }
 
     function fetchTrash(obstacle) {
-      const obstacleX = obstacle.offsetLeft + 'px';
+      const obstacleX = obstacle.offsetLeft;
+
       dog.style.backgroundImage = "url('dog.png')";
-      dog.style.left = obstacleX;
+      dog.style.left = obstacleX + 'px';
 
       setTimeout(() => {
-        obstacle.remove(); // Remove missed trash
+        // Remove missed trash when dog reaches it
+        obstacle.remove();
+
+        // Dog goes back home
         dog.style.left = '0px';
         dog.style.backgroundImage = "url('dogs.png')";
       }, 1500);
@@ -154,7 +158,7 @@
       gardener.style.left = (e.clientX - containerLeft - gardener.offsetWidth / 2) + 'px';
     });
 
-    // Spawn initial 4 obstacles
+    // Spawn initial trash
     [100, 300, 500, 700].forEach(x => createObstacle(x));
   </script>
 </body>
