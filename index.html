@@ -9,7 +9,7 @@
       margin: 0;
       padding: 0;
       height: 100%;
-      background-color: #87ceeb; /* Sky Blue */
+      background-color: #87ceeb;
       font-family: 'Courier New', Courier, monospace;
       display: flex;
       justify-content: center;
@@ -21,7 +21,7 @@
       position: relative;
       width: 800px;
       height: 600px;
-      background-color: #2e8b57; /* Garden Green */
+      background-color: #2e8b57;
       border: 5px solid #006400;
       overflow: hidden;
     }
@@ -34,43 +34,45 @@
       cursor: pointer;
     }
 
-    /* my gardener*/
     .gardener {
-      background-image: url('your_gardener_image_url.png'); /* Gardener Image */
+      background-image: url('gardener.png'); /* Your gardener image */
       bottom: 0;
       left: 50%;
       transform: translateX(-50%);
+      z-index: 5;
     }
 
-    /* my  obstacles */
     .obstacle {
-      background-image: url('your_obstacle_image_url.png'); /* Obstacle Image */
-      animation: fall 4s linear infinite;
+      background-image: url('trash.png'); /* Your trash image */
+      animation: fall 5s linear infinite;
     }
 
-    /* my flowers */
     .flower {
-      background-image: url('your_flower_image_url.png'); /* Flower Image */
       opacity: 0;
-      transition: opacity 0.5s ease-in-out;
+      width: 30px;
+      height: 30px;
+      transform: scale(0);
+      transition: width 1s, height 1s, opacity 1s, transform 1s;
+    }
+
+    .grow {
+      opacity: 1;
+      transform: scale(1);
+      width: 60px;
+      height: 60px;
     }
 
     @keyframes fall {
-      0% {
-        top: -50px;
-      }
-      100% {
-        top: 100%;
-      }
+      0% { top: -50px; }
+      100% { top: 100%; }
     }
   </style>
 </head>
 <body>
   <div class="game-container">
-    <!-- Gardener Image -->
     <div class="gardener"></div>
 
-    <!-- Obstacles (e.g., rocks / trash falling) -->
+    <!-- Falling trash obstacles -->
     <div class="obstacle" style="left: 100px;"></div>
     <div class="obstacle" style="left: 300px;"></div>
     <div class="obstacle" style="left: 500px;"></div>
@@ -82,23 +84,36 @@
     const obstacles = document.querySelectorAll('.obstacle');
     const gameContainer = document.querySelector('.game-container');
 
-    // Move gardener left or right when the mouse is moved
+    // Random flower options
+    const flowerImages = ['red.png', 'tulip.png', 'pastel.png'];
+
+    // Make gardener follow mouse horizontally
     document.addEventListener('mousemove', (e) => {
-      gardener.style.left = e.pageX - gameContainer.offsetLeft - gardener.offsetWidth / 2 + 'px';
+      const containerLeft = gameContainer.getBoundingClientRect().left;
+      gardener.style.left = (e.clientX - containerLeft - gardener.offsetWidth / 2) + 'px';
     });
 
-    // Handle clicks on obstacles (they will be "rescued" and turn into flowers)
+    // On obstacle click, replace with growing flower
     obstacles.forEach(obstacle => {
       obstacle.addEventListener('click', () => {
         const flower = document.createElement('div');
         flower.classList.add('flower');
+
+        // Randomly pick a flower image
+        const randomImage = flowerImages[Math.floor(Math.random() * flowerImages.length)];
+        flower.style.backgroundImage = `url('${randomImage}')`;
+
         flower.style.left = obstacle.style.left;
         flower.style.top = obstacle.style.top;
         gameContainer.appendChild(flower);
 
+        // Trigger growth animation
         setTimeout(() => {
-          flower.style.opacity = 1;
+          flower.classList.add('grow');
         }, 100);
+
+        // Optional: remove the obstacle so it can't be clicked again
+        obstacle.remove();
       });
     });
   </script>
