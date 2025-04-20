@@ -26,10 +26,9 @@
       overflow: hidden;
     }
 
-    .gardener, .obstacle, .flower {
+    .gardener, .obstacle, .flower, .dog {
       position: absolute;
       background-size: cover;
-      cursor: pointer;
     }
 
     .gardener {
@@ -64,13 +63,12 @@
     }
 
     .dog {
-      position: absolute;
-      bottom: 0;
-      left: 0;
       width: 60px;
       height: 60px;
-      background-image: url('dogs.png');
+      background-image: url('dog.png');
       background-size: cover;
+      bottom: 0;
+      left: 0;
       z-index: 10;
       transition: left 1.5s linear;
     }
@@ -86,7 +84,11 @@
     <div class="gardener"></div>
     <div class="dog"></div>
 
-    <!-- Trash will be created dynamically here -->
+    <!-- Initial trash -->
+    <div class="obstacle" style="left: 100px;"></div>
+    <div class="obstacle" style="left: 300px;"></div>
+    <div class="obstacle" style="left: 500px;"></div>
+    <div class="obstacle" style="left: 700px;"></div>
   </div>
 
   <script>
@@ -94,64 +96,71 @@
     const gameContainer = document.querySelector('.game-container');
     const dog = document.querySelector('.dog');
 
+    // Flower images
     const flowerImages = ['red.png', 'tulip.png', 'pastel.png'];
+    // Trash images
     const trashImages = ['bag.png', 'garb.png', 'rock.png'];
 
-    // Function to create an obstacle (trash)
-    function createObstacle() {
+    // Function to create falling trash
+    function createObstacle(leftPos) {
       const obstacle = document.createElement('div');
       obstacle.classList.add('obstacle');
-      
-      // Random horizontal position for trash (within game container width)
-      const randomLeft = Math.random() * (gameContainer.offsetWidth - 60); // 60 is the width of the trash
-      obstacle.style.left = ${randomLeft}px;
+      obstacle.style.left = leftPos + 'px';
 
       const randomTrash = trashImages[Math.floor(Math.random() * trashImages.length)];
-      obstacle.style.backgroundImage = url('${randomTrash}');
+      obstacle.style.backgroundImage = `url('${randomTrash}')`;
       gameContainer.appendChild(obstacle);
 
-      // Trash fall animation completed (not clicked)
+      // When trash reaches bottom (missed), remove it
       obstacle.addEventListener('animationend', () => {
-        fetchTrash(obstacle);
+        obstacle.remove();
       });
 
-      // Clicked (cleaned by player)
+      // When clicked, plant a flower
       obstacle.addEventListener('click', () => {
-        growFlowerAt(obstacle.style.left, obstacle.offsetTop + 'px');
+        plantFlower(obstacle.style.left);
         obstacle.remove();
       });
     }
 
-    // Function to make flowers grow
-    function growFlowerAt(left, top) {
+    // Function to plant a flower at the bottom
+    function plantFlower(left) {
       const flower = document.createElement('div');
       flower.classList.add('flower');
-      const img = flowerImages[Math.floor(Math.random() * flowerImages.length)];
-      flower.style.backgroundImage = url('${img}');
+      const randomFlower = flowerImages[Math.floor(Math.random() * flowerImages.length)];
+      flower.style.backgroundImage = `url('${randomFlower}')`;
       flower.style.left = left;
-      flower.style.top = top;
+      flower.style.bottom = '0px'; // Make sure flowers grow at the bottom
       gameContainer.appendChild(flower);
 
+      // Make flower grow
       setTimeout(() => {
         flower.classList.add('grow');
       }, 100);
     }
 
-    // Function for the dog to "catch" the trash
-    function fetchTrash(obstacle) {
-      const obstacleX = obstacle.offsetLeft;
+    // Move the dog to the nearest trash to help catch it before it hits the bottom
+    function moveDogToCatchTrash(obstacleX) {
+      // Move the dog near the falling trash
+      const dogTargetX = obstacleX - (dog.offsetWidth / 2) + (Math.random() * 60 - 30); // Adjust dog's position slightly to help catch it
+      dog.style.left = `${dogTargetX}px`;
 
-      dog.style.backgroundImage = "url('dog.png')";
-      dog.style.left = obstacleX + 'px';
-
+      // After catching the trash, the dog returns to starting position
       setTimeout(() => {
-        // Remove missed trash when dog reaches it
-        obstacle.remove();
-
-        // Dog goes back home
-        dog.style.left = '0px';
-        dog.style.backgroundImage = "url('dogs.png')";
+        dog.style.left = '0px'; // Dog returns to the left side after catching
       }, 1500);
+    }
+
+    // Function to simulate the dog's help with catching trash near the bottom
+    function checkForTrashNearBottom() {
+      const obstacles = document.querySelectorAll('.obstacle');
+      obstacles.forEach((obstacle) => {
+        const obstacleRect = obstacle.getBoundingClientRect();
+        if (obstacleRect.top + obstacleRect.height > gameContainer.offsetHeight - 100) {
+          // If the obstacle is near the bottom, move the dog to catch it
+          moveDogToCatchTrash(obstacleRect.left);
+        }
+      });
     }
 
     // Move gardener with mouse
@@ -160,8 +169,20 @@
       gardener.style.left = (e.clientX - containerLeft - gardener.offsetWidth / 2) + 'px';
     });
 
-    // Spawn random trash every 2 seconds
-    setInterval(createObstacle, 2000);
+    // Start the game by creating some trash
+    createObstacle(100);
+    createObstacle(300);
+    createObstacle(500);
+    createObstacle(700);
+
+    // Continuously spawn trash every 2 seconds
+    setInterval(() => {
+      const randomPos = Math.floor(Math.random() * 4) * 200 + 100; // Random positions
+      createObstacle(randomPos);
+    }, 2000);
+
+    // Check for trash near the bottom every 50ms to help the dog catch it
+    setInterval(checkForTrashNearBottom, 50);
   </script>
 </body>
 </html>
