@@ -32,7 +32,6 @@
       cursor: pointer;
     }
 
-    /* Gardener is now 60x60 */
     .gardener {
       width: 60px;
       height: 60px;
@@ -43,11 +42,9 @@
       z-index: 5;
     }
 
-    /* Trash (obstacle) is now 60x60 */
     .obstacle {
       width: 60px;
       height: 60px;
-      background-image: url('trash.png');
       animation: fall 5s linear infinite;
     }
 
@@ -76,7 +73,7 @@
   <div class="game-container">
     <div class="gardener"></div>
 
-    <!-- Trash (obstacles) -->
+    <!--  obstacles, image will be set -->
     <div class="obstacle" style="left: 100px;"></div>
     <div class="obstacle" style="left: 300px;"></div>
     <div class="obstacle" style="left: 500px;"></div>
@@ -88,8 +85,14 @@
     const obstacles = document.querySelectorAll('.obstacle');
     const gameContainer = document.querySelector('.game-container');
 
-    // Flower options without pastel
     const flowerImages = ['red.png', 'tulip.png'];
+    const trashImages = ['bag.png', 'garb.png', 'rock.png'];
+
+    // Assign random trash images to each obstacle
+    obstacles.forEach(obstacle => {
+      const randomTrash = trashImages[Math.floor(Math.random() * trashImages.length)];
+      obstacle.style.backgroundImage = `url('${randomTrash}')`;
+    });
 
     // Move gardener with mouse
     document.addEventListener('mousemove', (e) => {
