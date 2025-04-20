@@ -10,7 +10,7 @@
       padding: 0;
       height: 100%;
       background-color: #87ceeb;
-      font-family: 'Courier New', Courier, monospace;
+      font-family: 'Courier New', monospace;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -24,36 +24,35 @@
       background-color: #2e8b57;
       border: 5px solid #006400;
       overflow: hidden;
-    }
-
-    .gardener, .obstacle, .flower {
-      position: absolute;
-      background-size: cover;
-      cursor: pointer;
+      text-align: center;
     }
 
     .gardener {
+      position: absolute;
       width: 110px;
       height: 110px;
-      background-image: url('gardener.png');
       bottom: 0;
       left: 50%;
       transform: translateX(-50%);
+      background-image: url('gardener.png');
       z-index: 5;
     }
 
     .obstacle {
+      position: absolute;
       width: 60px;
       height: 60px;
       animation: fall 5s linear forwards;
+      cursor: pointer;
     }
 
     .flower {
-      opacity: 0;
+      position: absolute;
       width: 30px;
       height: 30px;
+      opacity: 0;
       transform: scale(0);
-      transition: width 1s, height 1s, opacity 1s, transform 1s;
+      transition: all 1s;
     }
 
     .grow {
@@ -70,9 +69,35 @@
       width: 60px;
       height: 60px;
       background-image: url('dogs.png');
-      background-size: cover;
       z-index: 10;
       transition: left 1.5s linear;
+    }
+
+    .header, .footer {
+      position: absolute;
+      font-family: 'Courier New', monospace;
+      color: white;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
+    }
+
+    .header {
+      top: 20px;
+      font-size: 36px;
+      letter-spacing: 2px;
+    }
+
+    .footer {
+      bottom: 10px;
+      font-size: 16px;
+    }
+
+    .score {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      color: white;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
     }
 
     @keyframes fall {
@@ -83,84 +108,73 @@
 </head>
 <body>
   <div class="game-container">
+    <div class="header">NatureNourish</div>
+    <div class="footer">Catch trash, save nature, and restore balance—your actions shape the future of the Earth!</div>
+    <div class="score">Score: 0</div>
     <div class="gardener"></div>
     <div class="dog"></div>
-
-    <!-- Trash will be created dynamically here -->
   </div>
 
   <script>
-    const gardener = document.querySelector('.gardener');
     const gameContainer = document.querySelector('.game-container');
+    const gardener = document.querySelector('.gardener');
     const dog = document.querySelector('.dog');
+    const scoreElement = document.querySelector('.score');
 
     const flowerImages = ['red.png', 'tulip.png', 'pastel.png'];
     const trashImages = ['bag.png', 'garb.png', 'rock.png'];
 
-    // Function to create an obstacle (trash)
+    let score = 0;
+
+    function updateScore() {
+      scoreElement.textContent = 'Score: ' + score;
+    }
+
     function createObstacle() {
       const obstacle = document.createElement('div');
       obstacle.classList.add('obstacle');
-      
-      // Random horizontal position for trash (within game container width)
-      const randomLeft = Math.random() * (gameContainer.offsetWidth - 60); // 60 is the width of the trash
-      obstacle.style.left = `${randomLeft}px`;
-
-      const randomTrash = trashImages[Math.floor(Math.random() * trashImages.length)];
-      obstacle.style.backgroundImage = `url('${randomTrash}')`;
+      obstacle.style.left = Math.random() * (gameContainer.offsetWidth - 60) + 'px';
+      obstacle.style.backgroundImage = `url('${trashImages[Math.floor(Math.random() * trashImages.length)]}')`;
       gameContainer.appendChild(obstacle);
 
-      // Trash fall animation completed (not clicked)
+      obstacle.addEventListener('click', () => {
+        growFlowerAt(obstacle.offsetLeft, gameContainer.offsetHeight - 60); // Flower grows along the bottom
+        obstacle.remove();
+        score += 10;
+        updateScore();
+      });
+
       obstacle.addEventListener('animationend', () => {
         fetchTrash(obstacle);
       });
-
-      // Clicked (cleaned by player)
-      obstacle.addEventListener('click', () => {
-        growFlowerAt(obstacle.style.left, obstacle.offsetTop + 'px');
-        obstacle.remove();
-      });
     }
 
-    // Function to make flowers grow
-    function growFlowerAt(left, top) {
+    function growFlowerAt(left, bottom) {
       const flower = document.createElement('div');
       flower.classList.add('flower');
-      const img = flowerImages[Math.floor(Math.random() * flowerImages.length)];
-      flower.style.backgroundImage = `url('${img}')`;
-      flower.style.left = left;
-      flower.style.top = top;
+      flower.style.backgroundImage = `url('${flowerImages[Math.floor(Math.random() * flowerImages.length)]}')`;
+      flower.style.left = left + 'px';
+      flower.style.bottom = bottom + 'px'; // Position the flower at the bottom of the container
       gameContainer.appendChild(flower);
 
-      setTimeout(() => {
-        flower.classList.add('grow');
-      }, 100);
+      setTimeout(() => flower.classList.add('grow'), 100);
     }
 
-    // Function for the dog to "catch" the trash
     function fetchTrash(obstacle) {
-      const obstacleX = obstacle.offsetLeft;
-
+      dog.style.left = obstacle.offsetLeft + 'px';
       dog.style.backgroundImage = "url('dog.png')";
-      dog.style.left = obstacleX + 'px';
-
       setTimeout(() => {
-        // Remove missed trash when dog reaches it
         obstacle.remove();
-
-        // Dog goes back home
         dog.style.left = '0px';
         dog.style.backgroundImage = "url('dogs.png')";
       }, 1500);
     }
 
-    // Move gardener with mouse
     document.addEventListener('mousemove', (e) => {
       const containerLeft = gameContainer.getBoundingClientRect().left;
       gardener.style.left = (e.clientX - containerLeft - gardener.offsetWidth / 2) + 'px';
     });
 
-    // Spawn random trash every 2 seconds
     setInterval(createObstacle, 2000);
   </script>
 </body>
