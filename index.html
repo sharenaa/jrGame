@@ -101,6 +101,9 @@
     const flowerImages = ['red.png', 'tulip.png', 'pastel.png'];
     const trashImages = ['bag.png', 'garb.png', 'rock.png'];
 
+    // Track where flowers are being planted along the bottom row
+    let plantedFlowers = []; 
+
     function createObstacle(leftPos) {
       const obstacle = document.createElement('div');
       obstacle.classList.add('obstacle');
@@ -117,23 +120,28 @@
 
       // Clicked (cleaned by player)
       obstacle.addEventListener('click', () => {
-        growFlowerAt(obstacle.style.left, obstacle.offsetTop + 'px');
+        growFlowerAt(obstacle.style.left);
         obstacle.remove();
       });
     }
 
-    function growFlowerAt(left, top) {
+    function growFlowerAt(left) {
       const flower = document.createElement('div');
       flower.classList.add('flower');
       const img = flowerImages[Math.floor(Math.random() * flowerImages.length)];
       flower.style.backgroundImage = `url('${img}')`;
       flower.style.left = left;
-      flower.style.top = top;
+      flower.style.bottom = '0px'; // Ensure flowers grow at the bottom
+
+      // Add flower to the game container
       gameContainer.appendChild(flower);
 
+      // Track flower position and grow
       setTimeout(() => {
         flower.classList.add('grow');
       }, 100);
+
+      plantedFlowers.push(flower);  // Track the planted flower for future reference
     }
 
     function fetchTrash(obstacle) {
@@ -160,6 +168,12 @@
 
     // Spawn initial trash
     [100, 300, 500, 700].forEach(x => createObstacle(x));
+
+    // Continuously spawn trash
+    setInterval(() => {
+      const randomPos = Math.floor(Math.random() * 4) * 200 + 100; // Random positions every 2s
+      createObstacle(randomPos);
+    }, 2000);
   </script>
 </body>
 </html>
