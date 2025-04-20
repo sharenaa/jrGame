@@ -28,22 +28,26 @@
 
     .gardener, .obstacle, .flower {
       position: absolute;
-      width: 40px;
-      height: 40px;
       background-size: cover;
       cursor: pointer;
     }
 
+    /* Gardener is now 60x60 */
     .gardener {
-      background-image: url('gardener.png'); /* Your gardener image */
+      width: 60px;
+      height: 60px;
+      background-image: url('gardener.png');
       bottom: 0;
       left: 50%;
       transform: translateX(-50%);
       z-index: 5;
     }
 
+    /* Trash (obstacle) is now 60x60 */
     .obstacle {
-      background-image: url('trash.png'); /* Your trash image */
+      width: 60px;
+      height: 60px;
+      background-image: url('trash.png');
       animation: fall 5s linear infinite;
     }
 
@@ -63,7 +67,7 @@
     }
 
     @keyframes fall {
-      0% { top: -50px; }
+      0% { top: -60px; }
       100% { top: 100%; }
     }
   </style>
@@ -72,7 +76,7 @@
   <div class="game-container">
     <div class="gardener"></div>
 
-    <!-- Falling trash obstacles -->
+    <!-- Trash (obstacles) -->
     <div class="obstacle" style="left: 100px;"></div>
     <div class="obstacle" style="left: 300px;"></div>
     <div class="obstacle" style="left: 500px;"></div>
@@ -84,22 +88,22 @@
     const obstacles = document.querySelectorAll('.obstacle');
     const gameContainer = document.querySelector('.game-container');
 
-    // Random flower options
-    const flowerImages = ['red.png', 'tulip.png', 'pastel.png'];
+    // Flower options without pastel
+    const flowerImages = ['red.png', 'tulip.png'];
 
-    // Make gardener follow mouse horizontally
+    // Move gardener with mouse
     document.addEventListener('mousemove', (e) => {
       const containerLeft = gameContainer.getBoundingClientRect().left;
       gardener.style.left = (e.clientX - containerLeft - gardener.offsetWidth / 2) + 'px';
     });
 
-    // On obstacle click, replace with growing flower
+    // Click obstacle -> grow flower
     obstacles.forEach(obstacle => {
       obstacle.addEventListener('click', () => {
         const flower = document.createElement('div');
         flower.classList.add('flower');
 
-        // Randomly pick a flower image
+        // Random flower image
         const randomImage = flowerImages[Math.floor(Math.random() * flowerImages.length)];
         flower.style.backgroundImage = `url('${randomImage}')`;
 
@@ -107,12 +111,12 @@
         flower.style.top = obstacle.style.top;
         gameContainer.appendChild(flower);
 
-        // Trigger growth animation
+        // Grow animation
         setTimeout(() => {
           flower.classList.add('grow');
         }, 100);
 
-        // Optional: remove the obstacle so it can't be clicked again
+        // Remove clicked obstacle
         obstacle.remove();
       });
     });
