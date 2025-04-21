@@ -26,8 +26,7 @@
       overflow: hidden;
     }
 
-    /* Common styles for gardener and dog */
-    .gardener, .dog, .obstacle {
+    .gardener, .obstacle, .flower, .dog {
       position: absolute;
       background-size: cover;
     }
@@ -39,6 +38,28 @@
       bottom: 0;
       left: 50%;
       transform: translateX(-50%);
+      z-index: 5;
+    }
+
+    .obstacle {
+      width: 60px;
+      height: 60px;
+      animation: fall 5s linear forwards;
+    }
+
+    .flower {
+      opacity: 0;
+      width: 30px;
+      height: 30px;
+      transform: scale(0);
+      transition: width 1s, height 1s, opacity 1s, transform 1s;
+    }
+
+    .grow {
+      opacity: 1;
+      transform: scale(1);
+      width: 60px;
+      height: 60px;
     }
 
     .dog {
@@ -49,43 +70,13 @@
       bottom: 0;
       left: 0;
       z-index: 10;
-      animation: moveDog 1.5s ease-in-out forwards;
+      transition: left 1.5s linear;
     }
 
-    /* Falling obstacle animation */
     @keyframes fall {
       0% { top: -60px; }
       100% { top: 100%; }
     }
-
-    .obstacle {
-      width: 60px;
-      height: 60px;
-      animation: fall 5s linear forwards;
-    }
-
-    /* Flower grow effect */
-    .flower {
-      opacity: 0;
-      width: 30px;
-      height: 30px;
-      transform: scale(0);
-      transition: all 1s ease-in-out;
-    }
-
-    .flower.grow {
-      opacity: 1;
-      transform: scale(1);
-      width: 60px;
-      height: 60px;
-    }
-
-    /* Keyframes for dog movement */
-    @keyframes moveDog {
-      0% { left: 0px; }
-      100% { left: 100px; } /* Default move to 100px, can be changed dynamically */
-    }
-
   </style>
 </head>
 <body>
@@ -93,7 +84,7 @@
     <div class="gardener"></div>
     <div class="dog"></div>
 
-    <!-- Initial obstacles (trash) -->
+    <!-- Initial trash -->
     <div class="obstacle" style="left: 100px;"></div>
     <div class="obstacle" style="left: 300px;"></div>
     <div class="obstacle" style="left: 500px;"></div>
@@ -104,7 +95,10 @@
     const gardener = document.querySelector('.gardener');
     const gameContainer = document.querySelector('.game-container');
     const dog = document.querySelector('.dog');
+
+    // Flower images
     const flowerImages = ['red.png', 'tulip.png', 'pastel.png'];
+    // Trash images
     const trashImages = ['bag.png', 'garb.png', 'rock.png'];
 
     // Function to create falling trash
@@ -117,30 +111,56 @@
       obstacle.style.backgroundImage = `url('${randomTrash}')`;
       gameContainer.appendChild(obstacle);
 
+      // When trash reaches bottom (missed), remove it
       obstacle.addEventListener('animationend', () => {
-        obstacle.remove(); // Remove obstacle after it hits the bottom
+        obstacle.remove();
       });
 
       // When clicked, plant a flower
       obstacle.addEventListener('click', () => {
-        plantFlower(leftPos);
+        plantFlower(obstacle.style.left);
         obstacle.remove();
       });
     }
 
-    // Function to plant a flower
+    // Function to plant a flower at the bottom
     function plantFlower(left) {
       const flower = document.createElement('div');
       flower.classList.add('flower');
       const randomFlower = flowerImages[Math.floor(Math.random() * flowerImages.length)];
       flower.style.backgroundImage = `url('${randomFlower}')`;
-      flower.style.left = left + 'px';
+      flower.style.left = left;
+      flower.style.bottom = '0px'; // Make sure flowers grow at the bottom
       gameContainer.appendChild(flower);
 
-      // Make flower grow after a delay
+      // Make flower grow
       setTimeout(() => {
         flower.classList.add('grow');
       }, 100);
+    }
+
+    // Move the dog to the nearest trash to help catch it before it hits the bottom
+    function moveDogToCatchTrash(obstacleX) {
+      // Move the dog near the falling trash
+      const dogTargetX = obstacleX - (dog.offsetWidth / 2) + (Math.random() * 60 - 30); // Adjust dog's position slightly to help catch it
+      dog.style.left = `${dogTargetX}px`;
+
+      // After catching the trash, the dog returns to starting position
+      setTimeout(() => {
+        dog.style.left = '0px'; // Dog returns to the left side after catching
+      }, 1500);
+    }
+
+    // Function to simulate the dog's help with catching trash near the bottom
+    function checkForTrashNearBottom() {
+      const obstacles = document.querySelectorAll('.obstacle');
+      obstacles.forEach((obstacle) => {
+        const obstacleRect = obstacle.getBoundingClientRect();
+        if (obstacleRect.top + obstacleRect.height > gameContainer.offsetHeight - 100) {
+          // If the obstacle is near the bottom, move the dog to catch it
+          moveDogToCatchTrash(obstacleRect.left);
+        }
+      });
     }
 
     // Move gardener with mouse
@@ -149,36 +169,19 @@
       gardener.style.left = (e.clientX - containerLeft - gardener.offsetWidth / 2) + 'px';
     });
 
-    // Check for obstacles near the bottom
-    function checkForTrashNearBottom() {
-      const obstacles = document.querySelectorAll('.obstacle');
-      obstacles.forEach((obstacle) => {
-        const obstacleRect = obstacle.getBoundingClientRect();
-        if (obstacleRect.top + obstacleRect.height > gameContainer.offsetHeight - 100) {
-          moveDogToCatchTrash(obstacleRect.left);
-        }
-      });
-    }
-
-    // Function to move dog to catch trash
-    function moveDogToCatchTrash(obstacleX) {
-      dog.style.animation = 'moveDog 1.5s ease-in-out forwards';
-      dog.style.left = obstacleX - (dog.offsetWidth / 2) + 'px';
-    }
-
-    // Start the game by creating some obstacles
+    // Start the game by creating some trash
     createObstacle(100);
     createObstacle(300);
     createObstacle(500);
     createObstacle(700);
 
-    // Continuously spawn obstacles every 2 seconds
+    // Continuously spawn trash every 2 seconds
     setInterval(() => {
       const randomPos = Math.floor(Math.random() * 4) * 200 + 100; // Random positions
       createObstacle(randomPos);
     }, 2000);
 
-    // Continuously check for trash near the bottom
+    // Check for trash near the bottom every 50ms to help the dog catch it
     setInterval(checkForTrashNearBottom, 50);
   </script>
 </body>
